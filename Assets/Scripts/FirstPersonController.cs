@@ -8,10 +8,18 @@ public class FirstPersonController : MonoBehaviour {
 	public float flightSpeed = 13.41112f; 
 	public float diveSpeed = 44.704f;
 
-	public float startFlap = 3f;
-	public float endFlap = 4f;
+	public float startAscentFlap = .2f;
+	public float endAscentFlap = .3f;
 	public float minAscent = 1f;
-	public float maxAscent = 5f;
+	public float maxAscent = 3f;
+
+	public float flapUpSpeed = 2;
+	public float flapDownSpeed = 2;
+	public float flapRange = 30f;
+
+	public float glideDurationMin = 5f;
+	public float glideDurationMax = 15f;
+
 
 	//AudioSource flapSound;
 	//bool flapPlayedOnce = false;
@@ -25,6 +33,13 @@ public class FirstPersonController : MonoBehaviour {
 	float currentAscent = 0f;
 	float ascentTimer;
 
+	bool flappingUp = true;
+	float currentFlapPosition = 0f;
+
+	bool gliding = false;
+	float glideDuration = 0f;
+	float glideDurationTimer = 0f;
+
 	// Use this for initialization
 	void Start () {
 		characterController = GetComponent<CharacterController> ();
@@ -32,7 +47,9 @@ public class FirstPersonController : MonoBehaviour {
 
 //		flapSound = GetComponent<AudioSource> ();
 
-		ascentTimer = startFlap;
+		float glideDuration = Random.Range (glideDurationMin, glideDurationMax);
+
+		ascentTimer = startAscentFlap;
 	}
 	
 	// Update is called once per frame
@@ -72,9 +89,16 @@ public class FirstPersonController : MonoBehaviour {
 	}
 
 	void FlyYouFools(){
+		float forwardSpeed = Input.GetAxis ("Vertical");
+
 		Ascend ();
 
-		float forwardSpeed = Input.GetAxis ("Vertical");
+		if(currentAscent == 0f){
+			Glide (forwardSpeed);
+			if(!gliding){
+				Flap();
+			}
+		}
 
 		Vector3 movement = new Vector3(0, currentAscent, forwardSpeed);
 		movement = transform.rotation * movement * Time.deltaTime;
@@ -85,12 +109,13 @@ public class FirstPersonController : MonoBehaviour {
 		if(onGround){
 			inFlight = false;
 		}
+
 	}
 
 	void Ascend(){
 		if(Input.GetKey ("space")){
-			if( ascentTimer >= startFlap ){
-				if( ascentTimer >= endFlap ){
+			if( ascentTimer >= startAscentFlap ){
+				if( ascentTimer >= endAscentFlap ){
 					ascentTimer = 0f;
 				}
 
@@ -108,9 +133,46 @@ public class FirstPersonController : MonoBehaviour {
 			}
 		} else {
 //			flapPlayedOnce = false;
-			ascentTimer = startFlap;
+			ascentTimer = startAscentFlap;
 			currentAscent = 0f;
 		}
+	}
+
+	void Glide(float forwardSpeed){
+		if(forwardSpeed != 0f){
+			glideDurationTimer += Time.deltaTime;
+
+			if(glideDurationTimer >= glideDuration){
+				glideDurationTimer = 0f;
+				glideDuration = Random.Range (glideDurationMin, glideDurationMax);
+				gliding = !gliding;
+			}
+		} else {
+			gliding = false;
+			glideDurationTimer = 0f;
+			glideDuration = Random.Range (glideDurationMin, glideDurationMax);
+		}
+	}
+
+	void Flap() {
+		Vector3 movement;
+		if(flappingUp){
+			currentFlapPosition += flapUpSpeed;
+			movement = new Vector3(0, flapUpSpeed, 0);
+			
+			if(currentFlapPosition >= flapRange){
+				flappingUp = false;
+			}
+		} else {
+			currentFlapPosition -= flapDownSpeed;
+			movement = new Vector3(0, -flapDownSpeed, 0);
+			
+			if(currentFlapPosition <= 0f){
+				flappingUp = true;
+			}
+		}
+		
+		characterController.Move (movement * Time.deltaTime);
 	}
 
 	void Dive(){

@@ -225,10 +225,15 @@ MonoBehaviour:
   walkSpeed: 5
   flightSpeed: 13.4111204
   diveSpeed: 44.7039986
-  startFlap: .200000003
-  endFlap: .300000012
+  startAscentFlap: .200000003
+  endAscentFlap: .300000012
   minAscent: 1
   maxAscent: 3
+  flapUpSpeed: 2
+  flapDownSpeed: 2
+  flapRange: 30
+  glideDurationMin: 4
+  glideDurationMax: 8
 --- !u!82 &1964143045
 AudioSource:
   m_ObjectHideFlags: 0
