@@ -4,9 +4,8 @@ using System.Collections;
 public class FirstPersonController : MonoBehaviour {
 	public float walkSpeed = 5f;
 
-	//Flight and dive speed of a bald eagle. 'Murica.
+	//Flight speed of a bald eagle. 'Murica.
 	public float flightSpeed = 13.41112f; 
-	public float diveSpeed = 44.704f;
 
 	public float startAscentFlap = .2f;
 	public float endAscentFlap = .3f;
@@ -20,15 +19,17 @@ public class FirstPersonController : MonoBehaviour {
 	public float glideDurationMin = 5f;
 	public float glideDurationMax = 15f;
 
+	public float tiltZMax = 60f;
+	public float tiltXMax = 85f;
+
 
 	//AudioSource flapSound;
 	//bool flapPlayedOnce = false;
 
 	CharacterController characterController;
 
-	bool inFlight = false;
+	bool inFlight = true;
 	bool onGround = false;
-	bool diving = false;
 
 	float currentAscent = 0f;
 	float ascentTimer;
@@ -40,8 +41,16 @@ public class FirstPersonController : MonoBehaviour {
 	float glideDuration = 0f;
 	float glideDurationTimer = 0f;
 
+	float currentTiltZ = 0f;
+	float currentTiltX = 0f;
+
+	Transform cameraTransform;
+
 	// Use this for initialization
 	void Start () {
+		Screen.showCursor = false;
+		Screen.lockCursor = true;
+
 		characterController = GetComponent<CharacterController> ();
 		Physics.gravity = new Vector3 (0, -9.8f, 0);
 
@@ -50,6 +59,8 @@ public class FirstPersonController : MonoBehaviour {
 		float glideDuration = Random.Range (glideDurationMin, glideDurationMax);
 
 		ascentTimer = startAscentFlap;
+
+		cameraTransform = transform.Find ("Main Camera");
 	}
 	
 	// Update is called once per frame
@@ -62,27 +73,22 @@ public class FirstPersonController : MonoBehaviour {
 	}
 
 	void Move(){
-		if (!onGround && !inFlight) {
-			diving = true;
-		} else {
-			diving = false;
-		}
-
-		Transform cameraTransform = transform.Find ("Main Camera");
-
 		float rotationLeftRight = Input.GetAxis ("Mouse X");
 		float rotationUpDown = -Input.GetAxis ("Mouse Y");
 
 		if (cameraTransform != null) { 
-			cameraTransform.Rotate (rotationUpDown, 0, 0);
+			if (rotationUpDown != 0f) {
+				currentTiltX += rotationUpDown;
+				currentTiltX = Mathf.Clamp (currentTiltX, -tiltXMax, tiltXMax);
+			}
+			
+			cameraTransform.eulerAngles = new Vector3 (currentTiltX, cameraTransform.eulerAngles.y, cameraTransform.eulerAngles.z);
 		}
 
 		transform.Rotate (0, rotationLeftRight, 0);
 
 		if (inFlight) {
 			FlyYouFools();
-		} else if(diving){
-			Dive();
 		} else {
 			Walk();
 		}	
@@ -99,6 +105,8 @@ public class FirstPersonController : MonoBehaviour {
 				Flap();
 			}
 		}
+		
+		Tilt(forwardSpeed);	
 
 		Vector3 movement = new Vector3(0, currentAscent, forwardSpeed);
 		movement = transform.rotation * movement * Time.deltaTime;
@@ -109,10 +117,11 @@ public class FirstPersonController : MonoBehaviour {
 		if(onGround){
 			inFlight = false;
 		}
-
 	}
 
 	void Ascend(){
+		float forwardSpeed = Input.GetAxis ("Vertical");
+
 		if(Input.GetKey ("space")){
 			if( ascentTimer >= startAscentFlap ){
 				if( ascentTimer >= endAscentFlap ){
@@ -131,6 +140,9 @@ public class FirstPersonController : MonoBehaviour {
 				currentAscent = minAscent;
 				//flapPlayedOnce = false;
 			}
+		} else if(Input.GetKey ("left shift") && currentTiltX > 0f && forwardSpeed > 0f){
+			//Debug.Log((forwardSpeed * Mathf.Tan(Mathf.Deg2Rad * currentTiltX)) + " : forward speed (a) " + forwardSpeed + " : angle (beta) " + currentTiltX);
+			currentAscent = -(forwardSpeed * Mathf.Tan(Mathf.Deg2Rad * currentTiltX));
 		} else {
 //			flapPlayedOnce = false;
 			ascentTimer = startAscentFlap;
@@ -139,7 +151,7 @@ public class FirstPersonController : MonoBehaviour {
 	}
 
 	void Glide(float forwardSpeed){
-		if(forwardSpeed != 0f){
+		if(forwardSpeed > 0f){
 			glideDurationTimer += Time.deltaTime;
 
 			if(glideDurationTimer >= glideDuration){
@@ -175,20 +187,17 @@ public class FirstPersonController : MonoBehaviour {
 		characterController.Move (movement * Time.deltaTime);
 	}
 
-	void Dive(){
-		float movementX = 0;
-		float movementY = -1;
-		float movementZ = 1;
+	void Tilt(float forwardSpeed){
+		float mouseMovementX = -(Input.GetAxis ("Mouse X") / 2);	
 
-		Vector3 movement = new Vector3 (movementX, movementY, movementZ);
-		movement = transform.rotation * movement * Time.deltaTime;
-
-		characterController.Move(movement * diveSpeed);
-		SetOnGround ();
-		
-		if(onGround){
-			inFlight = false;
+		if (forwardSpeed > 0f && mouseMovementX != 0f) {
+			currentTiltZ += mouseMovementX;
+			currentTiltZ = Mathf.Clamp (currentTiltZ, -tiltZMax, tiltZMax);
+		} else {
+			currentTiltZ = Mathf.Lerp(currentTiltZ, 0, Time.deltaTime);
 		}
+
+		cameraTransform.eulerAngles = new Vector3 (cameraTransform.eulerAngles.x, cameraTransform.eulerAngles.y, currentTiltZ); 
 	}
 
 	void Walk(){

@@ -224,16 +224,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   walkSpeed: 5
   flightSpeed: 13.4111204
-  diveSpeed: 44.7039986
-  startAscentFlap: .200000003
-  endAscentFlap: .300000012
-  minAscent: 1
-  maxAscent: 3
-  flapUpSpeed: 2
-  flapDownSpeed: 2
+  startAscentFlap: .300000012
+  endAscentFlap: .400000006
+  minAscent: .5
+  maxAscent: 1.5
+  flapUpSpeed: 1
+  flapDownSpeed: 3
   flapRange: 30
   glideDurationMin: 4
   glideDurationMax: 8
+  tiltZMax: 60
+  tiltXMax: 85
 --- !u!82 &1964143045
 AudioSource:
   m_ObjectHideFlags: 0
