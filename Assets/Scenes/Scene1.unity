@@ -224,17 +224,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   walkSpeed: 5
   flightSpeed: 13.4111204
-  startAscentFlap: .300000012
-  endAscentFlap: .400000006
-  minAscent: .5
-  maxAscent: 1.5
+  diveSpeed: 44.7039986
   flapUpSpeed: 1
-  flapDownSpeed: 3
-  flapRange: 30
+  flapDownSpeed: 1.5
+  flapRange: 20
   glideDurationMin: 4
   glideDurationMax: 8
   tiltZMax: 60
   tiltXMax: 85
+  diveAfterTiltX: 60
 --- !u!82 &1964143045
 AudioSource:
   m_ObjectHideFlags: 0
@@ -434,6 +432,7 @@ GameObject:
   - 92: {fileID: 2102111085}
   - 124: {fileID: 2102111084}
   - 81: {fileID: 2102111083}
+  - 45: {fileID: 2102111088}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -506,3 +505,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1964143043}
   m_RootOrder: 0
+--- !u!45 &2102111088
+Skybox:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2102111082}
+  m_Enabled: 1
+  m_CustomSkybox: {fileID: 2100000, guid: 53412155bc1016547b1a77b2333c0380, type: 2}
