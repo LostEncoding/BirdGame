@@ -7,11 +7,6 @@ public class FirstPersonController : MonoBehaviour {
 	//Flight speed of a bald eagle. 'Murica.
 	public float flightSpeed = 13.41112f; 
 
-	public float startAscentFlap = .2f;
-	public float endAscentFlap = .3f;
-	public float minAscent = 1f;
-	public float maxAscent = 3f;
-
 	public float flapUpSpeed = 2;
 	public float flapDownSpeed = 2;
 	public float flapRange = 30f;
@@ -58,8 +53,6 @@ public class FirstPersonController : MonoBehaviour {
 
 		float glideDuration = Random.Range (glideDurationMin, glideDurationMax);
 
-		ascentTimer = startAscentFlap;
-
 		cameraTransform = transform.Find ("Main Camera");
 	}
 	
@@ -97,14 +90,12 @@ public class FirstPersonController : MonoBehaviour {
 	void FlyYouFools(){
 		float forwardSpeed = Input.GetAxis ("Vertical");
 
-		Ascend ();
-
-		if(currentAscent == 0f){
-			Glide (forwardSpeed);
-			if(!gliding){
-				Flap();
-			}
+		Glide (forwardSpeed);
+		if(!gliding){
+			Flap();
 		}
+
+		Ascend ();
 		
 		Tilt(forwardSpeed);	
 
@@ -122,31 +113,14 @@ public class FirstPersonController : MonoBehaviour {
 	void Ascend(){
 		float forwardSpeed = Input.GetAxis ("Vertical");
 
-		if(Input.GetKey ("space")){
-			if( ascentTimer >= startAscentFlap ){
-				if( ascentTimer >= endAscentFlap ){
-					ascentTimer = 0f;
-				}
-
-				ascentTimer += Time.deltaTime;
-				currentAscent = maxAscent;
-
-				/*if(!flapPlayedOnce){
-					flapSound.Play ();
-					flapPlayedOnce = true;
-				}*/
-			} else {
-				ascentTimer += Time.deltaTime;
-				currentAscent = minAscent;
-				//flapPlayedOnce = false;
+		if (Input.GetKey ("space")) {
+			currentAscent = 1f;
+		} else if(Input.GetKey ("left shift") && currentTiltX != 0f){
+			if( forwardSpeed > 0f ){
+				currentAscent = -(forwardSpeed * Mathf.Tan(Mathf.Deg2Rad * currentTiltX));
+			} else if ( forwardSpeed == 0f ){
+				currentAscent = 1f;
 			}
-		} else if(Input.GetKey ("left shift") && currentTiltX > 0f && forwardSpeed > 0f){
-			//Debug.Log((forwardSpeed * Mathf.Tan(Mathf.Deg2Rad * currentTiltX)) + " : forward speed (a) " + forwardSpeed + " : angle (beta) " + currentTiltX);
-			currentAscent = -(forwardSpeed * Mathf.Tan(Mathf.Deg2Rad * currentTiltX));
-		} else {
-//			flapPlayedOnce = false;
-			ascentTimer = startAscentFlap;
-			currentAscent = 0f;
 		}
 	}
 
