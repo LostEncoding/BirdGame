@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class BirdController : MonoBehaviour {
 	public float walkSpeed = 5f;
@@ -7,8 +8,9 @@ public class BirdController : MonoBehaviour {
 	//Flight and dive speed of a bald eagle. 'Murica.
 	public float flightSpeed = 13.41112f; 
 	public float diveSpeed = 44.704f; //Terminal velocity.
-	
-	public float flapUpSpeed = 1f;
+	public Slider meter;
+
+	public float flapUpSpeed = 8f;
 	public float flapDownSpeed = 1.5f;
 	public float flapRange = 20f;
 	
@@ -78,7 +80,10 @@ public class BirdController : MonoBehaviour {
 	
 	void FlyYouFools(){
 		if (Input.GetKeyDown (KeyCode.Space)) {
-			rigidbody.AddForce(new Vector3(0, 1, 0), ForceMode.Impulse);
+			meter.value += .11f;
+			rigidbody.AddForce(new Vector3(0, flapUpSpeed, 0), ForceMode.Impulse);
+		}else{
+			meter.value -= .006f;
 		}
 
 		float forwardSpeed = Input.GetAxis ("Vertical");
@@ -101,7 +106,6 @@ public class BirdController : MonoBehaviour {
 		} else if(timeSinceLastTiltZ > .2f){
 			currentTiltZ = Mathf.Lerp(currentTiltZ, 0, Time.deltaTime);
 		}
-		
 		cameraTransform.eulerAngles = new Vector3 (cameraTransform.eulerAngles.x, cameraTransform.eulerAngles.y, currentTiltZ); 
 	}
 }
