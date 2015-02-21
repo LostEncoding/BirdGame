@@ -9,6 +9,7 @@ public class BirdController : MonoBehaviour {
 	public float flightSpeed = 13.41112f; 
 	public float diveSpeed = 44.704f; //Terminal velocity.
 	public Slider meter;
+	public static int keyCount = 0;
 
 	public float flapUpSpeed = 8f;
 	public float flapDownSpeed = 1.5f;
