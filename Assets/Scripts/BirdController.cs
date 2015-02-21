@@ -3,6 +3,8 @@ using System.Collections;
 using UnityEngine.UI;
 
 public class BirdController : MonoBehaviour {
+	BirdController birdController;
+
 	public float walkSpeed = 5f;
 	
 	//Flight and dive speed of a bald eagle. 'Murica.
@@ -53,11 +55,12 @@ public class BirdController : MonoBehaviour {
 		float glideDuration = Random.Range (glideDurationMin, glideDurationMax);
 		currentSpeed = flightSpeed;
 		cameraTransform = transform.Find ("Main Camera");
+		birdController = GetComponent<BirdController> ();
 	}
 
 	void Update() {
 		LookAround ();
-	}
+	}	
 
 	void LookAround(){
 		float rotationLeftRight = Input.GetAxis ("Mouse X");
@@ -76,10 +79,27 @@ public class BirdController : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
+		print (inFlight);
 		if (inFlight) {
 			FlyYouFools ();
 		} else {
 			Walk();
+		}
+	}
+
+	void Walk(){
+		if (Input.GetKeyDown (KeyCode.Space)) {
+			inFlight = true;
+			FlyYouFools();
+			return;
+		}
+
+		meter.value -= .003f;
+	}
+
+	void OnCollisionEnter(Collision collision){
+		if (collision.gameObject.name == "Terrain") {
+			inFlight = false;
 		}
 	}
 	
@@ -112,9 +132,5 @@ public class BirdController : MonoBehaviour {
 			currentTiltZ = Mathf.Lerp(currentTiltZ, 0, Time.deltaTime);
 		}
 		cameraTransform.eulerAngles = new Vector3 (cameraTransform.eulerAngles.x, cameraTransform.eulerAngles.y, currentTiltZ); 
-	}
-
-	void Walk(){
-
 	}
 }
