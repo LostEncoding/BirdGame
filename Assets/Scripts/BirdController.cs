@@ -75,15 +75,19 @@ public class BirdController : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
-		FlyYouFools ();
+		if (inFlight) {
+			FlyYouFools ();
+		} else {
+			Walk();
+		}
 	}
 	
 	void FlyYouFools(){
 		if (Input.GetKeyDown (KeyCode.Space)) {
 			meter.value += .11f;
 			rigidbody.AddForce(new Vector3(0, flapUpSpeed, 0), ForceMode.Impulse);
-		}else{
-			meter.value -= .006f;
+		} else {
+			meter.value -= .003f;
 		}
 
 		float forwardSpeed = Input.GetAxis ("Vertical");
@@ -107,5 +111,9 @@ public class BirdController : MonoBehaviour {
 			currentTiltZ = Mathf.Lerp(currentTiltZ, 0, Time.deltaTime);
 		}
 		cameraTransform.eulerAngles = new Vector3 (cameraTransform.eulerAngles.x, cameraTransform.eulerAngles.y, currentTiltZ); 
+	}
+
+	void Walk(){
+
 	}
 }
